@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head> 
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" /> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{@title}} {{@WEB_NAME}}</title>
+
+	<!-- THEME -->
+	<link type="text/css" rel="stylesheet" href="{{@WEB_ROOT}}static/{{@COOKIE.se_theme == 'plusstrap' ? 'plusstrap' : 'bootstrap'}}/css/bootstrap.css" />
+
+	<link type="text/css" rel="stylesheet" href="{{@WEB_ROOT}}static/css/font-awesome.css" />
+	<link type="text/css" rel="stylesheet" href="{{@WEB_ROOT}}static/css/event.css" />
+
+	<script type="text/javascript" src="{{@WEB_ROOT}}static/js/jquery.js"></script>
+	<script type="text/javascript" src="{{@WEB_ROOT}}static/bootstrap/js/bootstrap.min.js"></script>
+
+	<!--<script type="text/javascript" src="{{@WEB_ROOT}}static/noty/jquery.noty.js"></script>-->
+	<!--<script type="text/javascript" src="{{@WEB_ROOT}}static/noty/layouts/topRight.js"></script>-->
+	<!--<script type="text/javascript" src="{{@WEB_ROOT}}static/noty/themes/default.js"></script>-->
+	<script type="text/javascript" src="{{@WEB_ROOT}}static/js/jquery.gritter.js"></script>
+	<link type="text/css" rel="stylesheet" href="{{@WEB_ROOT}}static/css/gritter.css" />
+
+	<script type="text/javascript">
+
+	function is_login()
+	{
+		if("{{@COOKIE.se_user_id}}" === "") 
+		{
+			if( confirm("亲，请先登录！") == true)
+				window.location="{{@WEB_ROOT}}login?backurl="+encodeURIComponent(window.location.href.replace(/http:\/\//, ''));
+			return false;
+		}
+		return true;
+	}
+
+	function create_event()
+	{
+        //先只开放社团用户发布活动
+        if("{{@COOKIE.se_user_group}}" != "{{@CLUB_GROUP}}" && "{{@COOKIE.se_user_group}}" != "") {
+            alert("啥事都是循序渐进滴，目前只开放社团用户发布活动，请君稍安勿躁。");
+            return;
+        }
+
+		if("{{@COOKIE.se_user_id}}" === "")
+			window.location="{{@WEB_ROOT}}login?backurl="+encodeURIComponent("{{@WEB_URL}}{{@WEB_ROOT}}create".replace(/http:\/\//, ''));
+		else
+			window.location="{{@WEB_ROOT}}create";
+	}
+
+		$(function(){
+			$('.dropdown-toggle').dropdown()
+			//var noty = $('#wrap').noty({text:'Hello!'});
+			$.extend($.gritter.options, { 
+				fade_in_speed: 'medium', // how fast notifications fade in (string or int)
+				fade_out_speed: 1000, // how fast the notices fade out
+				time: 5000 // hang on the screen for...
+			});
+		});
+
+	var sidebarNumOfChar = 40;
+
+	function sliceSidebarCharacters(it, numOfChar){
+		append = count(it.parent("span").next().find("a").html());
+		sliceCharacters(it, numOfChar - append);
+	}
+
+	function sliceCharacters(it, numOfChar){
+		var str = it.html();
+		var slice = countCharacters(str, numOfChar);
+		if(slice !== false)
+			it.html(str.substr(0, slice)+"...");
+	}
+
+	function countCharacters(str, num){
+		var totalCount = 0;
+		var slice = 0;
+		for (var i=0; i<str.length; i++) {
+			if(totalCount >= num)
+				return slice;
+			var c = str.charCodeAt(i);
+			if ((c >= 0x0001 && c <= 0x007e) || (0xff60<=c && c<=0xff9f)) {
+				totalCount++;
+			} else {
+				totalCount+=2;
+			}
+			slice++;
+		}
+		// alert(totalCount);
+		return false;
+	}
+
+	function count(str){
+		var totalCount = 0;
+		for (var i=0; i<str.length; i++) {
+			var c = str.charCodeAt(i);
+			if ((c >= 0x0001 && c <= 0x007e) || (0xff60<=c && c<=0xff9f)) {
+				totalCount++;
+			} else {
+				totalCount+=2;
+			}
+		}
+		return totalCount;
+	}
+
+		//var noty = noty({layout:'topRight',text: 'LOOK AT ME!!!!!!!!!!!'});
+	</script>
+</head>
+<body>
+	<div id="wrap">
+
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+                    <a class="brand" href="{{@WEB_ROOT}}">{{@WEB_NAME}}</a>
+					<ul class="nav">
+						<li {{ @route[0] == 'home' ? 'class="active"' : ''}}><a href="{{@WEB_ROOT}}"><i class="icon-home"></i> 首页</a></li>
+						<li {{ @route[0] == 'discover' ? 'class="active"' : ''}}>
+                        <a href="{{@FIND_BY_URL}}"><i class="icon-search"></i> 发现活动</a></li>
+
+						<F3:check if="{{@COOKIE.se_user_id}} != ''">
+						<li {{ @route[0] == 'my' ? 'class="active"' : '' }}><a href="{{@WEB_ROOT}}my?d=event"><i class="icon-list"></i> 个人中心</a></li>
+						</F3:check>
+						<li {{ @route[0] == 'feedback' ? 'class="active"' : '' }}><a href="{{@WEB_ROOT}}feedback"><i class="icon-comments"></i> 问题反馈</a></li>
+					</ul>
+
+					<ul class="nav pull-right">
+					<F3:check if="{{ @COOKIE.se_user_id }}">
+						<F3:true>
+						<li class="dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+								<i class="icon-user"></i> 欢迎 {{@COOKIE.se_user_name}} 
+								<b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a href="{{@WEB_ROOT}}my?d=event">
+										<i class="icon-list" ></i>
+										<span> 我的活动</span>
+									</a>
+								</li>
+								<!-- <li>-->
+									<!--<a href="{{@WEB_ROOT}}my#msgbox">-->
+										<!--<i class="icon-envelope-alt" ></i>-->
+										<!--<span> 消息盒子({{@unread_msg}})</span> </a>-->
+								<!--</li>-->
+								<li>
+									<a href="{{@WEB_ROOT}}my?d=profile">
+										<i class="icon-github" ></i>
+										<span> 个人资料</span>
+									</a>
+								</li>
+								<!--<li><a href="#"><i class="icon-retweet"></i> SNS绑定</a></li>-->
+								<li class="divider"></li>
+								<li>
+									<a href="{{@WEB_ROOT}}logout"><i class="icon-signout"></i> 退出登录</a>
+								</li>
+							</ul>
+						</li>
+						
+						</F3:true>
+						<F3:false>
+						<li class="dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+								<i class="icon-signin"></i> 登录
+								<b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								<!--<li><a href="{{@WEB_ROOT}}login?auth={{@CAS_AUTH}}"><i class="icon-user"></i> 学生登录</a></li>-->
+								<li><a href="#login-Modal" role="button" data-toggle="modal"><i class="icon-user"></i> 学生登录</a></li>
+								<!--<li><a href="#"><i class="icon-retweet"></i> sns绑定</a></li>-->
+								<li class="divider"></li>
+								<li><a href="{{@WEB_ROOT}}login?auth={{@CLUB_AUTH}}"><i class="icon-bullhorn"></i> 社团登录</a></li>
+							</ul>
+						</li>
+						</f3:false>
+					</f3:check>
+					</ul>
+					<form class="navbar-search pull-right" action="{{@WEB_ROOT}}find/by" method="get">
+						  <input type="text" name="word" class="span2 search-query" placeholder="搜索活动..." />
+						  <input type="hidden" name="key" value="keyword"/>
+					  </form>
+
+				</div>
+			</div>
+		</div>
+
+	<F3:check if="{{@subnav}}">
+		<F3:true>
+		<div class="subnav subnav-fixed" id="plusstrap-subnav-fixed">
+			<div class="container">
+				<div class="row">
+					<div class="span2"><i>&nbsp;</i></div>
+					<div class="span10">
+					{{*<F3:check if="{{ @route[0] == 'event' }}">*}}
+						<ul class="nav nav-pills">
+							<li class="active"><a href="#event-info"><i class="icon-list-ul"></i> 活动信息</a></li>
+							<li><a href="#event-social"><i class="icon-share"></i> 分享好友</a></li>
+							<li><a href="#event-details"><i class="icon-credit-card"></i> 活动详情</a></li>
+							<li><a href="#event-discuss"><i class="icon-comments"></i> 活动咨询</a></li>
+						<!-- 自己的活动才显示 修改按钮 -->
+						<F3:check if="{{ @COOKIE.se_user_id== @e.organizer_id }}">
+							<li><a href="{{@WEB_ROOT}}event/{{@e.eid}}/edit"><i class="icon-pencil"></i> 修改活动</a></li>
+							<F3:check if="{{ @e.status == @EVENT_PASSED_STATUS }}">
+							<F3:check if="{{ @e.sign_up == @EVENT_NEED_SIGN}}">
+							<li><a href="{{@WEB_ROOT}}event/{{@e.eid}}/join/list"><i class="icon-list"></i> 报名名单</a></li>
+							</F3:check>
+							</F3:check>
+						</F3:check>
+						</ul>
+					{{*</F3:check>*}}
+					</div>
+				</div><!-- row -->
+			</div>
+		</div>
+		</F3:false>
+	</F3:check>
+
+	<F3:check if="{{@GET.first_login == 'true'}}">
+		<F3:include href="common/set_nickname.html" />
+	</F3:check>
+		<!--[if lt IE 9]>
+		<div class="alert alert-error" style="margin-top:-50px;margin-bottom:30px">
+			<div style="text-align:center;">
+				亲爱的用户，为了您能获得更好的浏览体验，我们作出了一个艰难的决定：网站将不对旧版本IE浏览器(IE8及以下)进行兼容，建议您升级IE浏览器或安装<a style="color:#B94A48;" href="http://www.google.cn/intl/zh-CN/chrome/browser/"><strong>Google Chrome</strong></a>、<a style="color:#B94A48;" href="http://firefox.com.cn/"><strong>Firefox</strong></a>等标准浏览器，否则网站某些功能可能无法正常使用
+			</div>
+		</div>
+		<![endif]-->
+<div class="modal hide" id="login-Modal">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		<h3>登录提示</h3>
+	</div>
+	<div class="modal-body">
+		<div class="alert alert-info" style="margin-top:10px;">
+			<!--<button type="button" class="close" data-dismiss="alert">Hide</button>-->
+			<p>为保证您为哈工大在校师生，需要您通过<strong><a href="https://cas.hit.edu.cn">哈工大统一身份认证系统</a></strong>进行登录。</p>
+            <p>如果您没有使用过统一身份认证系统，请点此<strong><a href="https://cas.hit.edu.cn/active.jsp">激活您的帐号</a></strong>。</p>
+		</div><!-- alert -->
+	</div>
+	<div class="modal-footer">
+		<!--<a href="#" class="btn" data-dismiss="modal" >关闭</a>-->
+		<a class="pull-right btn btn-primary" href="{{@WEB_ROOT}}login/?auth=cas&&backurl={{@GET.backurl}}">
+			<i class="icon-user"></i> 通过哈工大统一身份认证系统登录
+		</a>
+	</div>
+</div>
+

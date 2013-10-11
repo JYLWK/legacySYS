@@ -1,0 +1,24 @@
+<div id="find-sidebar" class="sidebar">
+
+<div class="entry" id="i-want-create" style="margin-left:20px; margin-top:-6px">
+	<a href="#" onclick="create_event(); return false;" class="btn btn-large"><i class="icon-bullhorn" style="margin-right:10px"></i>我要发起活动</a>
+</div>
+
+<F3:include href="sidebar/today_events.html" />
+<F3:include href="sidebar/tomorrow_events.html" />
+<F3:include href="sidebar/week_events.html" />
+<F3:include href="sidebar/guess_events.html" />
+
+</div>
+
+<script type="text/javascript">
+
+	$(document).ready(function () {
+		$("#find-sidebar .entry .content li .title a").each(function(){
+			sliceSidebarCharacters($(this), 40);
+		});
+	});
+
+</script>
+
+

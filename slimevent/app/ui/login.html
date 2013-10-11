@@ -1,0 +1,159 @@
+<F3:include href="common/header.html" />
+<body onLoad="document.getElementById('txtUserName').focus();GetCookie();"> 
+		<div class="container">
+			<div class="row">
+
+				<div class="span6">
+					<h2> 学生登录 </h3>
+
+					<a class="btn btn-large btn-primary" href="{{@WEB_ROOT}}login/?auth=cas&&backurl={{@GET.backurl}}">
+						<i class="icon-user"></i> 通过哈工大统一身份认证系统登录
+					</a>
+					<div class="alert alert-info" style="margin-top:10px;">
+                        <p>为保证您为哈工大在校师生，需要您通过<strong><a href="{{@WEB_ROOT}}login/?auth=cas&&backurl={{@GET.backurl}}" >哈工大统一身份认证系统</a></strong>进行登录。</p>
+                        <p>如果您没有使用过统一身份认证系统，请点此<strong><a href="https://cas.hit.edu.cn/active.jsp">激活您的帐号</a></strong>。</p>
+					</div><!-- alert -->
+				</div><!-- span6 -->
+
+				<div class="span6">
+					<h2> 社团登录 </h2>
+					<form onsubmit="ajax_login(); return false;"id="login_form" class="form-horizontal" method="POST">
+
+						<F3:check if="{{@show_msg}}">
+							<F3:true>
+						<div class="alert alert-error">
+							{{@msg}}
+						</div>
+							</F3:true>
+						</F3:check>
+
+						<div class="control-group">
+							<label class="control-label" for="txtUserName">账号</label>
+							<div class="controls">
+						  		<input type="text" id="txtUserName" name="user_name" onblur="GetPwdAndChk()" placeholder="帐号">
+							</div>
+					  	</div>
+
+					  	<div class="control-group">
+							<label class="control-label" for="txtPassword">密码</label>
+							<div class="controls">
+						  		<input type="password" id="txtPassword" name="user_pwd" placeholder="密码">
+							</div>
+					  	</div>
+
+					  	<div class="control-group">
+							<div class="controls">
+								<input type="checkbox" ID="chkRememberPwd" />记住密码 <br>
+							  	<button type="button" onclick="checkInCorrect()" class="btn btn-danger">登录</button>
+							</div>
+					 	</div>
+
+					</form>
+
+                    <pre>      还没有社团帐号？请与我们联系:<img src="{{@WEB_ROOT}}static/img/phone_number.png" /><a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin=605771324&site=qq&menu=yes"><img border="0" src="http://img5.pcpop.com/ArticleImages/0x0/1/1462/001462609.jpg" width="30px" height="30px" alt="联系我们" title="联系我们"/></a></pre>
+				</div><!-- span6 -->
+
+			</div><!-- row -->
+		</div><!-- Container -->
+</body> 
+<script src="{{@WEB_ROOT}}static/js/jquery.form.js" type="text/javascript"></script>
+
+<!--<script src="/slimevent/static/js/jquery.validform-zh_CN.js" type="text/javascript" charset="utf8"></script>-->
+<script src="{{@WEB_ROOT}}static/js/validform.js" type="text/javascript"></script>
+
+
+<script language="javascript" type="text/javascript">  
+function checkInCorrect()      //判断用户名和密码是否为空 
+{ 
+     if (document.getElementById('txtUserName').value=="") 
+   { 
+    alert('请输入用户名！') 
+    document.getElementById('txtUserName').focus(); 
+    return false 
+   } 
+   if (document.getElementById('txtPassword').value=="") 
+   { 
+    alert('请输入密码！') 
+    document.getElementById('txtPassword').focus(); 
+    return false 
+   } 
+   else 
+   { 
+    saveInfo(); 
+			var options = {
+			url : "{{@WEB_ROOT}}login",
+			type : 'POST',
+			success : function(data){
+				if(data == 0)
+					window.location.href="{{@WEB_ROOT}}"; 
+				else
+					alert(data);
+			},
+		};
+		$("#login_form").ajaxSubmit(options);
+    return true; 
+   } 
+} 
+ 	$(document).ready(function(){
+		$("input[name='user_pwd']").keydown(function(e){
+			var curkey = e.which;
+			if(curkey == 13){
+				ajax_login();
+				return false;
+			}
+		});
+	});
+ 
+saveInfo = function(){ 
+try{ 
+   var isSave = document.getElementById('chkRememberPwd').checked;   //保存按键是否选中 
+   if (isSave) { 
+    var usernm = document.getElementById('txtUserName').value; 
+    var userpsw = document.getElementById('txtPassword').value; 
+    if(usernm!="" && userpsw!=""){ 
+     SetCookie(usernm,userpsw); 
+    } 
+   }else {   
+    SetCookie("",""); 
+   } 
+}catch(e){ 
+ 
+} 
+} 
+ 
+function SetCookie(usern,psw){ 
+var Then = new Date()  
+Then.setTime(Then.getTime() + 1866240000000)  
+document.cookie ="username=" + usern + "%%"+psw+";expires="+ Then.toGMTString() ; 
+} 
+ 
+ 
+function GetCookie(){  
+var nmpsd; 
+var nm; 
+var psd; 
+var cookieString = new String(document.cookie) 
+var cookieHeader = "username=" 
+var beginPosition = cookieString.indexOf(cookieHeader) 
+cookieString = cookieString.substring(beginPosition); 
+var ends=cookieString.indexOf(";"); 
+if (ends!=-1){ 
+   cookieString = cookieString.substring(0,ends); 
+} 
+if (beginPosition>-1){ 
+   nmpsd = cookieString.substring(cookieHeader.length); 
+   if (nmpsd!=""){ 
+    beginPosition = nmpsd.indexOf("%%"); 
+    nm=nmpsd.substring(0,beginPosition); 
+    psd=nmpsd.substring(beginPosition+2); 
+    document.getElementById('txtUserName').value=nm; 
+    document.getElementById('txtPassword').value=psd; 
+    if(nm!="" && psd!=""){ 
+     document.forms[0].checkbox.checked = true 
+    } 
+   }  
+} 
+} 
+</script>  
+
+<F3:include href="common/footer.html" />
